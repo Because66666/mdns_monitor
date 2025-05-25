@@ -2,6 +2,9 @@
 
 这是一个使用Python和Flask框架开发的mDNS监控工具，主要用于发现和跟踪本地网络中的mDNS服务。
 
+![image](https://github.com/user-attachments/assets/7f253598-7077-4c97-899f-a326194959c3)
+
+
 ## 功能特性
 - 实时监控网络中的mDNS服务
 - 发现新加入的服务并显示详细信息
