@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MDNS设备发现</title>
+    <title>网络设备发现</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
@@ -15,6 +15,8 @@
                         secondary: '#10B981',
                         accent: '#8B5CF6',
                         neutral: '#1F2937',
+                        wifi: '#8B5CF6',
+                        mdns: '#3B82F6',
                     },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -37,6 +39,15 @@
             .counter-badge {
                 @apply bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium ml-2;
             }
+            .wifi-badge {
+                @apply bg-wifi/10 text-wifi;
+            }
+            .mdns-badge {
+                @apply bg-mdns/10 text-mdns;
+            }
+            .keyword-highlight {
+                @apply bg-yellow-100 text-yellow-800 px-1 rounded;
+            }
         }
     </style>
 </head>
@@ -47,7 +58,7 @@
             <div class="container mx-auto px-4 py-3 flex justify-between items-center">
                 <div class="flex items-center space-x-2">
                     <i class="fa fa-wifi text-primary text-2xl"></i>
-                    <h1 class="text-xl font-bold text-neutral">MDNS<span class="text-primary">设备发现</span></h1>
+                    <h1 class="text-xl font-bold text-neutral">网络<span class="text-primary">设备发现</span></h1>
                 </div>
                 <div class="flex items-center space-x-4">
                     <div class="flex items-center">
@@ -57,7 +68,7 @@
                     <button id="refresh-btn" class="text-gray-600 hover:text-primary transition-colors">
                         <i class="fa fa-refresh"></i>
                     </button>
-                    <a href="https://github.com/Because66666/mdns_monitor" target="_blank" class="text-gray-600 hover:text-gray-800 transition-colors">
+                    <a href="https://github.com" target="_blank" class="text-gray-600 hover:text-gray-800 transition-colors">
                         <i class="fa fa-github text-xl"></i>
                     </a>
                 </div>
@@ -69,37 +80,36 @@
             <div class="mb-6">
                 <div class="bg-white rounded-xl shadow-md p-4 mb-4">
                     <div class="flex justify-between items-center">
-                        <h2 class="text-lg font-semibold text-neutral">MDNS设备发现</h2>
+                        <h2 class="text-lg font-semibold text-neutral">网络设备发现</h2>
                         <div class="text-sm text-gray-500">
-                            <span id="total-count">0</span> 个记录
+                            <span id="total-count">0</span> 个设备
                         </div>
                     </div>
-                    <p class="text-gray-500 text-sm mt-1">实时监控网络中的MDNS流量，发现并展示所有支持零配置网络的设备</p>
+                    <p class="text-gray-500 text-sm mt-1">实时监控网络中的WiFi信号和MDNS服务，发现并展示所有可见的网络设备</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- IP地址表格 -->
+                    <!-- WiFi信号表格 -->
                     <div class="bg-white rounded-xl shadow-md overflow-hidden">
                         <div class="p-4 border-b border-gray-100 flex justify-between items-center">
                             <h3 class="font-semibold text-neutral flex items-center">
-                                <i class="fa fa-server text-primary mr-2"></i> IP地址
-                                <span id="ip-count" class="counter-badge">0</span>
+                                <i class="fa fa-wifi text-wifi mr-2"></i> WiFi信号
+                                <span id="wifi-count" class="counter-badge wifi-badge">0</span>
                             </h3>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full">
                                 <thead>
                                     <tr class="bg-gray-50">
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP地址</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">设备名称</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">WiFi名称</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">发现时间</th>
                                     </tr>
                                 </thead>
-                                <tbody id="ip-table-body" class="divide-y divide-gray-100">
+                                <tbody id="wifi-table-body" class="divide-y divide-gray-100">
                                     <!-- JS动态填充 -->
                                     <tr class="animate-pulse-slow">
-                                        <td colspan="3" class="px-4 py-8 text-center text-gray-500">
-                                            <i class="fa fa-spinner fa-spin mr-2"></i>正在等待MDNS数据...
+                                        <td colspan="2" class="px-4 py-8 text-center text-gray-500">
+                                            <i class="fa fa-spinner fa-spin mr-2"></i>正在扫描WiFi...
                                         </td>
                                     </tr>
                                 </tbody>
@@ -107,12 +117,12 @@
                         </div>
                     </div>
 
-                    <!-- 服务名称表格 -->
+                    <!-- MDNS服务表格 -->
                     <div class="bg-white rounded-xl shadow-md overflow-hidden">
                         <div class="p-4 border-b border-gray-100 flex justify-between items-center">
                             <h3 class="font-semibold text-neutral flex items-center">
-                                <i class="fa fa-list-alt text-secondary mr-2"></i> 服务名称
-                                <span id="service-count" class="counter-badge">0</span>
+                                <i class="fa fa-list-alt text-mdns mr-2"></i> MDNS服务
+                                <span id="service-count" class="counter-badge mdns-badge">0</span>
                             </h3>
                         </div>
                         <div class="overflow-x-auto">
@@ -123,7 +133,7 @@
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">发现时间</th>
                                     </tr>
                                 </thead>
-                                <tbody id="name-table-body" class="divide-y divide-gray-100">
+                                <tbody id="service-table-body" class="divide-y divide-gray-100">
                                     <!-- JS动态填充 -->
                                     <tr class="animate-pulse-slow">
                                         <td colspan="2" class="px-4 py-8 text-center text-gray-500">
@@ -142,11 +152,17 @@
                     <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-primary">
                         <i class="fa fa-info-circle"></i>
                     </div>
-                    <h3 class="ml-3 text-lg font-semibold text-neutral">关于MDNS</h3>
+                    <h3 class="ml-3 text-lg font-semibold text-neutral">关于网络发现</h3>
                 </div>
                 <p class="text-gray-600">
-                    多播DNS (MDNS) 是一种零配置网络协议，允许设备在没有传统DNS服务器的情况下发现服务和主机。
-                    此工具监听网络中的MDNS流量，实时展示发现的设备和服务信息。
+                    本工具通过两种方式发现网络设备：
+                </p>
+                <ul class="list-disc pl-5 mt-2 text-gray-600 space-y-1">
+                    <li>WiFi扫描：主动检测附近可用的WiFi接入点</li>
+                    <li>MDNS监听：被动接收网络中的零配置服务广播</li>
+                </ul>
+                <p class="text-gray-600 mt-3">
+                    标有<span class="keyword-highlight">高亮</span>的项目表示包含关键词（iPad、MacBook、iPhone）的设备。
                 </p>
             </div>
         </main>
@@ -154,7 +170,7 @@
         <!-- 页脚 -->
         <footer class="bg-white border-t border-gray-200 py-4">
             <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
-                <p>MDNS设备发现工具 &copy; 2025</p>
+                <p>网络设备发现工具 &copy; 2025</p>
             </div>
         </footer>
     </div>
@@ -167,63 +183,23 @@
             return date.toLocaleString();
         }
 
-        // 更新IP地址表格
-        function updateIpTable(records) {
-            const tableBody = document.getElementById('ip-table-body');
+        // 高亮关键词
+        function highlightKeywords(text) {
+            const keywords = ['ipad', 'macbook', 'iphone'];
+            if (!text) return '';
 
-            // 清空表格
-            tableBody.innerHTML = '';
-
-            if (records.length === 0) {
-                tableBody.innerHTML = `
-                    <tr class="animate-pulse-slow">
-                        <td colspan="3" class="px-4 py-8 text-center text-gray-500">
-                            <i class="fa fa-spinner fa-spin mr-2"></i>没有找到MDNS记录
-                        </td>
-                    </tr>
-                `;
-                document.getElementById('ip-count').textContent = '0';
-                return;
-            }
-
-            // 按IP地址分组
-            const ipMap = new Map();
-            records.forEach(record => {
-                if (record.ip) {
-                    if (!ipMap.has(record.ip)) {
-                        ipMap.set(record.ip, []);
-                    }
-                    ipMap.get(record.ip).push(record);
-                }
+            let result = text;
+            keywords.forEach(keyword => {
+                const regex = new RegExp(keyword, 'gi');
+                result = result.replace(regex, match => `<span class="keyword-highlight">${match}</span>`);
             });
 
-            // 更新IP计数
-            document.getElementById('ip-count').textContent = ipMap.size;
-
-            // 添加记录行
-            ipMap.forEach((records, ip) => {
-                const latestRecord = records[0]; // 最新的记录
-                const names = [...new Set(records.map(r => r.name).filter(Boolean))];
-
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-gray-50 transition-colors';
-
-                row.innerHTML = `
-                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${ip}</td>
-                    <td class="px-4 py-3 text-sm text-gray-700">
-                        ${names.length > 0 ? names[0] : '-'}
-                        ${names.length > 1 ? `<span class="text-xs text-gray-500 ml-1">+${names.length-1}</span>` : ''}
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${formatTimestamp(latestRecord.time)}</td>
-                `;
-
-                tableBody.appendChild(row);
-            });
+            return result;
         }
 
-        // 更新服务名称表格
-        function updateNameTable(records) {
-            const tableBody = document.getElementById('name-table-body');
+        // 更新WiFi表格
+        function updateWifiTable(records) {
+            const tableBody = document.getElementById('wifi-table-body');
 
             // 清空表格
             tableBody.innerHTML = '';
@@ -232,7 +208,52 @@
                 tableBody.innerHTML = `
                     <tr class="animate-pulse-slow">
                         <td colspan="2" class="px-4 py-8 text-center text-gray-500">
-                            <i class="fa fa-spinner fa-spin mr-2"></i>没有找到MDNS记录
+                            <i class="fa fa-spinner fa-spin mr-2"></i>没有找到WiFi信号
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('wifi-count').textContent = '0';
+                return;
+            }
+
+            // 更新WiFi计数
+            document.getElementById('wifi-count').textContent = records.length;
+
+            // 添加记录行
+            records.forEach(record => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition-colors';
+
+                // 检查是否是错误记录
+                if (record.error) {
+                    row.innerHTML = `
+                        <td class="px-4 py-3 text-sm text-red-600" colspan="2">
+                            <i class="fa fa-exclamation-triangle mr-2"></i>${record.name}
+                        </td>
+                    `;
+                } else {
+                    row.innerHTML = `
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">${record.name}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${formatTimestamp(record.time)}</td>
+                    `;
+                }
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 更新MDNS服务表格
+        function updateServiceTable(records) {
+            const tableBody = document.getElementById('service-table-body');
+
+            // 清空表格
+            tableBody.innerHTML = '';
+
+            if (records.length === 0) {
+                tableBody.innerHTML = `
+                    <tr class="animate-pulse-slow">
+                        <td colspan="2" class="px-4 py-8 text-center text-gray-500">
+                            <i class="fa fa-spinner fa-spin mr-2"></i>没有找到MDNS服务
                         </td>
                     </tr>
                 `;
@@ -240,30 +261,19 @@
                 return;
             }
 
-            // 按服务名称分组
-            const nameMap = new Map();
-            records.forEach(record => {
-                if (record.name) {
-                    if (!nameMap.has(record.name)) {
-                        nameMap.set(record.name, []);
-                    }
-                    nameMap.get(record.name).push(record);
-                }
-            });
-
             // 更新服务计数
-            document.getElementById('service-count').textContent = nameMap.size;
+            document.getElementById('service-count').textContent = records.length;
 
             // 添加记录行
-            nameMap.forEach((records, name) => {
-                const latestRecord = records[0]; // 最新的记录
-
+            records.forEach(record => {
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50 transition-colors';
 
                 row.innerHTML = `
-                    <td class="px-4 py-3 text-sm font-medium text-gray-900">${name}</td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${formatTimestamp(latestRecord.time)}</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">
+                        ${highlightKeywords(record.name || '-')}
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${formatTimestamp(record.time)}</td>
                 `;
 
                 tableBody.appendChild(row);
@@ -275,23 +285,26 @@
             const refreshBtn = document.getElementById('refresh-btn');
             refreshBtn.innerHTML = '<i class="fa fa-refresh fa-spin"></i>';
 
-            fetch('/api/mdns')
-                .then(response => response.json())
-                .then(records => {
-                    // 更新总记录计数
-                    document.getElementById('total-count').textContent = records.length;
+            // 并行获取WiFi和MDNS数据
+            Promise.all([
+                fetch('/api/wifi').then(res => res.json()),
+                fetch('/api/mdns').then(res => res.json())
+            ])
+            .then(([wifiRecords, mdnsRecords]) => {
+                // 更新总设备计数
+                document.getElementById('total-count').textContent = wifiRecords.length + mdnsRecords.length;
 
-                    // 更新表格
-                    updateIpTable(records);
-                    updateNameTable(records);
+                // 更新表格
+                updateWifiTable(wifiRecords);
+                updateServiceTable(mdnsRecords);
 
-                    refreshBtn.innerHTML = '<i class="fa fa-refresh"></i>';
-                })
-                .catch(error => {
-                    console.error('Error fetching MDNS data:', error);
-                    refreshBtn.innerHTML = '<i class="fa fa-refresh"></i>';
-                    alert('无法获取MDNS数据，请确保程序正在运行。');
-                });
+                refreshBtn.innerHTML = '<i class="fa fa-refresh"></i>';
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                refreshBtn.innerHTML = '<i class="fa fa-refresh"></i>';
+                alert('无法获取数据，请确保程序正在运行。');
+            });
         }
 
         // 初始加载数据
@@ -299,7 +312,7 @@
             refreshData();
 
             // 设置定时刷新
-            setInterval(refreshData, 2000);
+            setInterval(refreshData, 5000);
 
             // 手动刷新按钮
             document.getElementById('refresh-btn').addEventListener('click', refreshData);
